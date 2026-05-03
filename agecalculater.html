@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass Age Calculator</title>
+
+    <style>
+        :root {
+            --bg: linear-gradient(135deg, #dfe9f3, #ffffff);
+            --text: #1c1c1e;
+            --card: rgba(255, 255, 255, 0.25);
+            --border: rgba(255, 255, 255, 0.4);
+            --accent: #455054;
+        }
+
+        body.dark {
+            --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --text: #ffffff;
+            --card: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "San Francisco", sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg);
+            transition: 0.5s;
+        }
+
+        /* Glass Card */
+        .container {
+            width: 360px;
+            padding: 30px;
+            border-radius: 20px;
+            background: var(--card);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            color: var(--text);
+        }
+
+        /* Title */
+        h1 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Input */
+        input {
+            width: 85%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            outline: none;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* Button */
+        button {
+            padding: 10px 22px;
+            border-radius: 12px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        /* Toggle */
+        .toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Result */
+        .result {
+            margin-top: 20px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .highlight {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Subtle Confetti */
+        .confetti {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: white;
+            top: -10px;
+            animation: fall 4s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+
+<body class="dark">
+
+    <div class="toggle" onclick="toggleMode()">🌙</div>
+
+    <div class="container">
+        <h1>Age Calculator</h1>
+
+        <input type="date" id="dob">
+        <br>
+        <button onclick="calculateAge()">Calculate</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function toggleMode() {
+            document.body.classList.toggle("dark");
+            document.querySelector(".toggle").innerHTML =
+                document.body.classList.contains("dark") ? "🌙" : "🌞";
+        }
+
+        function calculateAge() {
+            let dob = document.getElementById("dob").value;
+            let result = document.getElementById("result");
+
+            if (!dob) {
+                result.innerHTML = "Select your date of birth";
+                return;
+            }
+
+            let birthDate = new Date(dob);
+            let today = new Date();
+
+            if (birthDate > today) {
+                result.innerHTML = "Invalid date";
+                return;
+            }
+
+            let years = today.getFullYear() - birthDate.getFullYear();
+            let months = today.getMonth() - birthDate.getMonth();
+            let days = today.getDate() - birthDate.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            let totalDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+
+            let nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+            if (nextBirthday < today) nextBirthday.setFullYear(today.getFullYear() + 1);
+
+            let daysLeft = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+
+            result.innerHTML = `
+        You are <span class="highlight">${years}</span> years,
+        <span class="highlight">${months}</span> months,
+        <span class="highlight">${days}</span> days old.<br><br>
+
+        Total days: <span class="highlight">${totalDays}</span><br>
+        Next birthday in: <span class="highlight">${daysLeft}</span> days
+    `;
+
+            if (daysLeft === 0) launchConfetti();
+        }
+
+        function launchConfetti() {
+            for (let i = 0; i < 30; i++) {
+                let c = document.createElement("div");
+                c.classList.add("confetti");
+                c.style.left = Math.random() * 100 + "vw";
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 4000);
+            }
+        }
+    </script>
+
+</body>
+
+</html>
